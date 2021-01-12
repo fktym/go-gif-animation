@@ -27,7 +27,7 @@ type CreateAnimationParam struct {
 	Frames []CreateFrameParam
 }
 
-func Create(param CreateAnimationParam) ([]byte, error) {
+func Create(param CreateAnimationParam) (*[]byte, error) {
 	log.Println("start create animation")
 
 	frameParams := param.Frames
@@ -48,7 +48,8 @@ func Create(param CreateAnimationParam) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed gif.EncodeAll. %w", err)
 	}
-	return all.Bytes(), nil
+	result := all.Bytes()
+	return &result, nil
 }
 
 func appendFrame(g *gif.GIF, p CreateFrameParam) error {
@@ -57,7 +58,7 @@ func appendFrame(g *gif.GIF, p CreateFrameParam) error {
 		return fmt.Errorf("failed fetchImage. %w", err)
 	}
 
-	decodedImage, _, err := image.Decode(bytes.NewReader(origin))
+	decodedImage, _, err := image.Decode(bytes.NewReader(*origin))
 	if err != nil {
 		return fmt.Errorf("failed image.Decode. %w", err)
 	}
@@ -78,12 +79,16 @@ func appendFrame(g *gif.GIF, p CreateFrameParam) error {
 	return nil
 }
 
-func fetchImage(uri string) ([]byte, error) {
+func fetchImage(uri string) (*[]byte, error) {
 	log.Printf("fetchImage uri: %s\n", uri)
 	if isURL(uri) {
 		return fetchImageFromURL(uri)
 	}
-	return ioutil.ReadFile(uri)
+	result, err := ioutil.ReadFile(uri)
+	if err != nil {
+		return nil, fmt.Errorf("failed ioutil.ReadFile. uri %s : %w", uri, err)
+	}
+	return &result, err
 }
 
 func isURL(uri string) bool {
@@ -98,7 +103,7 @@ func isURL(uri string) bool {
 	return true
 }
 
-func fetchImageFromURL(url string) ([]byte, error) {
+func fetchImageFromURL(url string) (*[]byte, error) {
 	response, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed http.Get. url %s : %w", url, err)
@@ -111,5 +116,5 @@ func fetchImageFromURL(url string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed ioutil.ReadAll. url %s : %w", url, err)
 	}
-	return data, nil
+	return &data, nil
 }

@@ -22,7 +22,7 @@ func TestCreate(t *testing.T) {
 	data, err := Create(p)
 	assert.Nil(t, err)
 
-	err = ioutil.WriteFile("../../test/out/TestCreate.gif", data, 0644)
+	err = ioutil.WriteFile("../../test/out/TestCreate.gif", *data, 0644)
 	if err != nil {
 		panic(err)
 	}
