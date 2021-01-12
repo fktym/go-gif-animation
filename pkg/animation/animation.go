@@ -75,7 +75,7 @@ func appendFrame(g *gif.GIF, p CreateFrameParam) error {
 	}
 
 	g.Image = append(g.Image, decodedGIF.(*image.Paletted))
-	g.Delay = append(g.Delay, 100)
+	g.Delay = append(g.Delay, p.Delay)
 	return nil
 }
 
