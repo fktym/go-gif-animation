@@ -73,9 +73,21 @@ func appendFrame(g *gif.GIF, p CreateFrameParam) error {
 	if err != nil {
 		return fmt.Errorf("failed gif.Decode. %w", err)
 	}
+	config, err := gif.DecodeConfig(bytes.NewReader(encodedGIF.Bytes()))
+	if err != nil {
+		return fmt.Errorf("failed gif.DecodeConfig. %w", err)
+	}
 
 	g.Image = append(g.Image, decodedGIF.(*image.Paletted))
 	g.Delay = append(g.Delay, p.Delay)
+	g.Disposal = append(g.Disposal, 2)
+
+	if g.Config.Height < config.Height {
+		g.Config.Height = config.Height
+	}
+	if g.Config.Width < config.Width {
+		g.Config.Width = config.Width
+	}
 	return nil
 }
 
